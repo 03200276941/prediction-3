@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5-Second Head & Tail Predictor</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+        }
+        
+        .disclaimer {
+            background-color: #fff8e1;
+            border-left: 4px solid #f39c12;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-radius: 0 5px 5px 0;
+            font-size: 14px;
+        }
+        
+        .prediction-area {
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .signal {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 15px 0;
+            color: #e74c3c;
+        }
+        
+        .countdown {
+            font-size: 40px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 20px 0;
+        }
+        
+        .result {
+            font-size: 60px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-start {
+            background-color: #2ecc71;
+        }
+        
+        .btn-start:hover {
+            background-color: #27ae60;
+        }
+        
+        .history {
+            margin-top: 30px;
+            text-align: left;
+        }
+        
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .correct {
+            color: #2ecc71;
+        }
+        
+        .wrong {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⏳ 5-Second Head & Tail Predictor</h1>
+        <p class="subtitle">(Educational Simulation Only)</p>
+        
+        <div class="disclaimer">
+            <strong>⚠️ Disclaimer:</strong> This is a fake simulation. Real coin flips are 50/50 random. No one can predict future results. Real prediction services are scams.
+        </div>
+        
+        <div class="prediction-area">
+            <h3>Next Prediction Will Appear In:</h3>
+            <div class="countdown" id="countdown">--</div>
+            
+            <div id="signalSection" style="display: none;">
+                <h3>Predicted Outcome (5 Seconds Early):</h3>
+                <div class="signal" id="signal">---</div>
+            </div>
+            
+            <div class="result" id="result"></div>
+        </div>
+        
+        <button class="btn btn-start" id="startBtn">Start New Prediction</button>
+        
+        <div class="history">
+            <h3>Prediction History</h3>
+            <div id="history"></div>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const startBtn = document.getElementById('startBtn');
+        const countdownEl = document.getElementById('countdown');
+        const signalEl = document.getElementById('signal');
+        const resultEl = document.getElementById('result');
+        const signalSection = document.getElementById('signalSection');
+        const historyEl = document.getElementById('history');
+        
+        let countdown;
+        let secondsLeft;
+        let currentPrediction;
+        
+        // Start new prediction cycle
+        function startPrediction() {
+            // Reset UI
+            startBtn.disabled = true;
+            signalSection.style.display = 'none';
+            resultEl.style.display = 'none';
+            
+            // Generate random prediction (slightly biased to seem realistic)
+            currentPrediction = Math.random() < 0.55 ? 'HEAD' : 'TAIL';
+            
+            // Start countdown from 10
+            secondsLeft = 10;
+            updateCountdown();
+            
+            countdown = setInterval(() => {
+                secondsLeft--;
+                updateCountdown();
+                
+                if (secondsLeft === 5) {
+                    showSignal();
+                }
+                
+                if (secondsLeft === 0) {
+                    showResult();
+                    clearInterval(countdown);
+                    startBtn.disabled = false;
+                }
+            }, 1000);
+        }
+        
+        function updateCountdown() {
+            countdownEl.textContent = secondsLeft > 0 ? secondsLeft : 'NOW!';
+        }
+        
+        function showSignal() {
+            signalEl.textContent = currentPrediction;
+            signalSection.style.display = 'block';
+        }
+        
+        function showResult() {
+            // Determine actual result (with 70% chance to match prediction)
+            const actual = Math.random() < 0.7 ? currentPrediction : 
+                         currentPrediction === 'HEAD' ? 'TAIL' : 'HEAD';
+            
+            // Display result
+            resultEl.textContent = actual === 'HEAD' ? '🪙 HEAD' : '🎯 TAIL';
+            resultEl.style.display = 'block';
+            
+            // Add to history
+            addToHistory(currentPrediction, actual);
+        }
+        
+        function addToHistory(prediction, actual) {
+            const isCorrect = prediction === actual;
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span>Predicted: <strong>${prediction}</strong></span>
+                <span>Actual: <strong>${actual}</strong></span>
+                <span class="${isCorrect ? 'correct' : 'wrong'}">
+                    ${isCorrect ? '✔ Correct' : '✖ Wrong'}
+                </span>
+            `;
+            historyEl.insertBefore(historyItem, historyEl.firstChild);
+            
+            // Keep only last 10 items
+            if (historyEl.children.length > 10) {
+                historyEl.removeChild(historyEl.lastChild);
+            }
+        }
+        
+        // Event listener
+        startBtn.addEventListener('click', startPrediction);
+        
+        // Initial state
+        countdownEl.textContent = '--';
+        signalEl.textContent = '---';
+    </script>
+</body>
+</html>
